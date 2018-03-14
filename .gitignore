@@ -1,0 +1,5 @@
+Vegeta/*.csv
+Vegeta/load_results/
+Vegeta/*.exe
+Locust/EV.py
+Locust/__pycache__/
