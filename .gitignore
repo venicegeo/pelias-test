@@ -3,3 +3,4 @@ Vegeta/load_results/
 Vegeta/*.exe
 Locust/EV.py
 Locust/__pycache__/
+Locust/*.csv

@@ -40,7 +40,10 @@ class Logger():
 		self.filename = filename
 		self.queue_write_length = 1000
 		self.lock = threading.Lock()
-		os.remove(filename)
+		try:
+			os.remove(filename)
+		except FileNotFoundError:
+			print("%s does not yet exist.  It will be created." % filename)
 
 	def add(self, request_type, name, response_time, response_length = 0, exception = ""):
 		self.result_queue += [[LocustCounter.get(), request_type, name, response_time, response_length, exception]]
@@ -55,6 +58,7 @@ class Logger():
 			writer = csv.writer(results_file)
 			writer.writerows(data_to_write)
 
+		print("Wrote %d entries to %s" % (current_length, self.filename))
 		del self.result_queue[:current_length]
 
 
@@ -66,7 +70,7 @@ class WebsiteUser(HttpLocust):
 	min_wait = 400
 	max_wait = 400
 
-	logger = Logger("resultsfoo.csv")
+	logger = Logger("results.csv")
 
 	events.request_success += logger.add
 	events.request_failure += logger.add
