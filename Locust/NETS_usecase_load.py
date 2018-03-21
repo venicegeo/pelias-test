@@ -1,6 +1,6 @@
 from locust import HttpLocust, TaskSet, task, events
 
-import time, csv
+import time, csv, threading, os
 
 # Environment Variables
 import EV
@@ -30,16 +30,33 @@ class UserBehavior(TaskSet):
 		self.client.get("/search/structured?%s" % next_item_in_cycle(EV.structured_parameters))
 
 	def on_start(self):
-		LocustCounter.increment()
+		self.id = LocustCounter.increment()
 
 
-def on_request_completion(request_type, name, response_time, response_length = 0, exception = ""):
-	results = [LocustCounter.get(), request_type, name, response_time, response_length, exception]
+class Logger():
 
-	# Append the data to the results file.
-	with open("results.csv", "a") as results_file:
-		writer = csv.writer(results_file)
-		writer.writerow(results)
+	def __init__(self, filename):
+		self.result_queue = [["Users", "Request Type", "Name", "Response Time", "Length", "Exception"]]
+		self.filename = filename
+		self.queue_write_length = 1000
+		self.lock = threading.Lock()
+		os.remove(filename)
+
+	def add(self, request_type, name, response_time, response_length = 0, exception = ""):
+		self.result_queue += [[LocustCounter.get(), request_type, name, response_time, response_length, exception]]
+		if len(self.result_queue) >= self.queue_write_length and not self.lock.locked():
+			with self.lock: self.write()
+
+	def write(self):
+		current_length = len(self.result_queue)
+		data_to_write = self.result_queue[:current_length]
+		# Append the data to the results file.
+		with open(self.filename, "a", newline='') as results_file:
+			writer = csv.writer(results_file)
+			writer.writerows(data_to_write)
+
+		del self.result_queue[:current_length]
+
 
 
 # Required for running a locust test.  Defines the user properites.
@@ -49,13 +66,12 @@ class WebsiteUser(HttpLocust):
 	min_wait = 400
 	max_wait = 400
 
-	events.request_success += on_request_completion
-	events.request_failure += on_request_completion
+	logger = Logger("resultsfoo.csv")
 
-	# Write the header of the results file.
-	with open("results.csv", "w+") as results_file:
-		writer = csv.writer(results_file)
-		writer.writerow(["Users", "Request Type", "Name", "Response Time", "Length", "Exception"])
+	events.request_success += logger.add
+	events.request_failure += logger.add
+
+
 
 def next_item_in_cycle(l):
 	item = l.pop()
