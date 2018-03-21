@@ -9,7 +9,7 @@ import EV
 try:
     FileNotFoundError
 except NameError:
-    FileNotFoundError = IOError
+    FileNotFoundError = OSError
 
 # Required for running a locust test.  Defines the actions that a user will take.
 class UserBehavior(TaskSet):
