@@ -5,6 +5,12 @@ import time, csv, threading, os
 # Environment Variables
 import EV
 
+# Python 2 Compatibility
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 # Required for running a locust test.  Defines the actions that a user will take.
 class UserBehavior(TaskSet):
 
