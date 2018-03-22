@@ -42,17 +42,34 @@ class UserBehavior(TaskSet):
 class Logger():
 
 	def __init__(self, filename):
-		self.result_queue = [["Users", "Request Type", "Name", "Response Time", "Length", "Exception"]]
+		self.result_queue = [[
+			"Users",
+			"Request Type",
+			"Name",
+			"Response Time",
+			"Test Time",
+			"Length",
+			"Exception"
+		]]
 		self.filename = filename
 		self.queue_write_length = 1000
 		self.lock = threading.Lock()
+		self.start_time = time.time()
 		try:
 			os.remove(filename)
 		except FileNotFoundError:
 			print("%s does not yet exist.  It will be created." % filename)
 
 	def add(self, request_type, name, response_time, response_length = 0, exception = ""):
-		self.result_queue += [[LocustCounter.get(), request_type, name, response_time, response_length, exception]]
+		self.result_queue += [[
+			LocustCounter.get(),
+			request_type,
+			name,
+			response_time,
+			time.time() - self.start_time,
+			response_length,
+			exception
+		]]
 		if len(self.result_queue) >= self.queue_write_length and not self.lock.locked():
 			with self.lock: self.write()
 
@@ -73,8 +90,8 @@ class Logger():
 class WebsiteUser(HttpLocust):
 	task_set = UserBehavior
 
-	min_wait = 400
-	max_wait = 400
+	min_wait = 0
+	max_wait = 0
 
 	logger = Logger("results.csv")
 
