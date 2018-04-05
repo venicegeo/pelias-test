@@ -1,0 +1,375 @@
+{
+	"info": {
+		"_postman_id": "d2c5e52c-26e3-4c73-878f-81882d4506b3",
+		"name": "Geocoding",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Hello!",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "15afec30-0d84-4e23-b15d-dfd0b456cf07",
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status Code should be 200\"] = responseCode.code === 200;",
+							"tests[\"Body should contain 'Pelias API'\"] = responseBody.match(/pelias.*api/i);",
+							"",
+							"postman.setEnvironmentVariable('base', postman.getEnvironmentVariable('domain') + postman.getEnvironmentVariable('version'));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{domain}}",
+					"host": [
+						"{{domain}}"
+					]
+				},
+				"description": "This is just a hello thingy."
+			},
+			"response": []
+		},
+		{
+			"name": "Text Search",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea3365dc-6505-45f9-9299-fa3d757d9105",
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status Code should be 200\"] = responseCode.code === 200;",
+							"",
+							"var testLevels = eval(postman.getEnvironmentVariable('testLevels'));",
+							"var parseJSON = eval(postman.getEnvironmentVariable('parseJSON'));",
+							"",
+							"data = parseJSON(tests, responseBody);",
+							"",
+							"all_matches = true;",
+							"one_match_found = false;",
+							"",
+							"if(testLevels(tests, data, 'features', 'array')) {",
+							"    for (i = 0; i < data.features.length; i++) {",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.name', 'string', 'features[].') && ",
+							"            data.features[i].properties.name.match(/green/i)",
+							"        ) {",
+							"            one_match_found = true;",
+							"        } else {",
+							"            all_matches = false;",
+							"        }",
+							"    }",
+							"}",
+							"",
+							"tests[\"At least one match should be found\"] = one_match_found;",
+							"tests[\"All returned matches should contain the search string\"] = all_matches;"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base}}/search?text=green",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "green"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Autocomplete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ec99394d-2939-4d4e-baca-2681e9c1333b",
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status Code should be 200\"] = responseCode.code === 200;",
+							"",
+							"var testLevels = eval(postman.getEnvironmentVariable('testLevels'));",
+							"var parseJSON = eval(postman.getEnvironmentVariable('parseJSON'));",
+							"",
+							"data = parseJSON(tests, responseBody);",
+							"",
+							"all_matches = true;",
+							"one_match_found = false;",
+							"",
+							"if(testLevels(tests, data, 'features', 'array')) {",
+							"    for (i = 0; i < data.features.length; i++) {",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.name', 'string', 'features[].') && ",
+							"            data.features[i].properties.name.match(/white/i)",
+							"        ) {",
+							"            one_match_found = true;",
+							"        } else {",
+							"            all_matches = false;",
+							"        }",
+							"    }",
+							"}",
+							"",
+							"tests[\"At least one match should be found\"] = one_match_found;",
+							"tests[\"All returned matches should contain the search string\"] = all_matches;"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{base}}/autocomplete?text=white",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"autocomplete"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "white"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Structured",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fff7d4fb-0bc6-4c2b-80e1-339dfe1920ff",
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status Code should be 200\"] = responseCode.code === 200;",
+							"",
+							"var testLevels = eval(postman.getEnvironmentVariable('testLevels'));",
+							"var parseJSON = eval(postman.getEnvironmentVariable('parseJSON'));",
+							"",
+							"data = parseJSON(tests, responseBody);",
+							"",
+							"all_county_matches = true;",
+							"one_county_match_found = false;",
+							"all_locality_matches = true;",
+							"one_locality_match_found = false;",
+							"all_region_matches = true;",
+							"one_region_match_found = false;",
+							"",
+							"matching_gids = \"\";",
+							"",
+							"if(testLevels(tests, data, 'features', 'array')) {",
+							"    for (i = 0; i < data.features.length; i++) {",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.county', 'string', 'features[].') && ",
+							"            data.features[i].properties.county.match(/lamar/i)",
+							"        ) {",
+							"            one_county_match_found = true;",
+							"        } else {",
+							"            all_county_matches = false;",
+							"        }",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.locality', 'string', 'features[].') && ",
+							"            data.features[i].properties.locality.match(/paris/i)",
+							"        ) {",
+							"            one_locality_match_found = true;",
+							"        } else {",
+							"            all_locality_matches = false;",
+							"        }",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.region', 'string', 'features[].') && ",
+							"            data.features[i].properties.region.match(/texas/i)",
+							"        ) {",
+							"            one_region_match_found = true;",
+							"        } else {",
+							"            all_region_matches = false;",
+							"        }",
+							"        if (testLevels(tests, data.features[i], 'properties.gid', 'skip', 'features[].')) {",
+							"            matching_gids += data.features[i].properties.gid + \",\";",
+							"        }",
+							"    }",
+							"}",
+							"",
+							"tests[\"At least one county match should be found\"] = one_county_match_found;",
+							"tests[\"All returned matches should contain the search county\"] = all_county_matches;",
+							"tests[\"At least one locality match should be found\"] = one_locality_match_found;",
+							"tests[\"All returned matches should contain the search locality\"] = all_locality_matches;",
+							"tests[\"At least one region match should be found\"] = one_region_match_found;",
+							"tests[\"All returned matches should contain the search region\"] = all_region_matches;",
+							"",
+							"postman.setEnvironmentVariable('structured_match_gids', matching_gids.replace(/,\\s*$/, \"\"));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"address\": \"300 S 5th St\",\r\n\t\"locality\": \"Waco\",\r\n\t\"Region\": \"Texas\"\r\n}"
+				},
+				"url": {
+					"raw": "{{base}}/search/structured?county=lamar&locality=Paris&region=Texas",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"search",
+						"structured"
+					],
+					"query": [
+						{
+							"key": "county",
+							"value": "lamar"
+						},
+						{
+							"key": "locality",
+							"value": "Paris"
+						},
+						{
+							"key": "region",
+							"value": "Texas"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "24dad2e8-f99c-4aca-a23a-5a0875448152",
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status Code should be 200\"] = responseCode.code === 200;",
+							"",
+							"var testLevels = eval(postman.getEnvironmentVariable('testLevels'));",
+							"var parseJSON = eval(postman.getEnvironmentVariable('parseJSON'));",
+							"",
+							"data = parseJSON(tests, responseBody);",
+							"",
+							"all_county_matches = true;",
+							"one_county_match_found = false;",
+							"all_locality_matches = true;",
+							"one_locality_match_found = false;",
+							"all_region_matches = true;",
+							"one_region_match_found = false;",
+							"all_gid_matches = true;",
+							"",
+							"gids = postman.getEnvironmentVariable('structured_match_gids').split(',');",
+							"",
+							"// now check the gids.",
+							"",
+							"if(testLevels(tests, data, 'features', 'array')) {",
+							"    for (i = 0; i < data.features.length; i++) {",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.county', 'string', 'features[].') && ",
+							"            data.features[i].properties.county.match(/lamar/i)",
+							"        ) {",
+							"            one_county_match_found = true;",
+							"        } else {",
+							"            all_county_matches = false;",
+							"        }",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.locality', 'string', 'features[].') && ",
+							"            data.features[i].properties.locality.match(/paris/i)",
+							"        ) {",
+							"            one_locality_match_found = true;",
+							"        } else {",
+							"            all_locality_matches = false;",
+							"        }",
+							"        if(",
+							"            testLevels(tests, data.features[i], 'properties.region', 'string', 'features[].') && ",
+							"            data.features[i].properties.region.match(/texas/i)",
+							"        ) {",
+							"            one_region_match_found = true;",
+							"        } else {",
+							"            all_region_matches = false;",
+							"        }",
+							"        if (testLevels(tests, data.features[i], 'properties.gid', 'skip', 'features[].')) {",
+							"            gidIndex = gids.indexOf(data.features[i].properties.gid);",
+							"            if (gidIndex >= 0) {",
+							"                gids.splice(gidIndex, 1);",
+							"            } else {",
+							"                all_gid_matches = false;",
+							"            }",
+							"        }",
+							"    }",
+							"}",
+							"console.log(\"unmatched gids: \" + gids);",
+							"tests[\"All results should be a requested gid\"] = all_gid_matches;",
+							"tests[\"All requested gids should be returned\"] = gids.length === 0;",
+							"tests[\"At least one county match should be found\"] = one_county_match_found;",
+							"tests[\"All returned matches should contain the search county\"] = all_county_matches;",
+							"tests[\"At least one locality match should be found\"] = one_locality_match_found;",
+							"tests[\"All returned matches should contain the search locality\"] = all_locality_matches;",
+							"tests[\"At least one region match should be found\"] = one_region_match_found;",
+							"tests[\"All returned matches should contain the search region\"] = all_region_matches;"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{base}}/place?ids={{structured_match_gids}}\t",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"place"
+					],
+					"query": [
+						{
+							"key": "ids",
+							"value": "{{structured_match_gids}}\t"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
