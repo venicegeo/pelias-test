@@ -11,13 +11,13 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "15afec30-0d84-4e23-b15d-dfd0b456cf07",
+						"id": "d7050b81-a863-48a0-8d5a-d0f38fa8a0d0",
 						"type": "text/javascript",
 						"exec": [
 							"tests[\"Status Code should be 200\"] = responseCode.code === 200;",
 							"tests[\"Body should contain 'Pelias API'\"] = responseBody.match(/pelias.*api/i);",
 							"",
-							"postman.setEnvironmentVariable('base', postman.getEnvironmentVariable('domain') + postman.getEnvironmentVariable('version'));"
+							"postman.setEnvironmentVariable('base', postman.getGlobalVariable('domain') + postman.getGlobalVariable('version'));"
 						]
 					}
 				}
