@@ -1,0 +1,32 @@
+node {
+  // Run the Integration Tests on the Phase Two Environment
+  def root = pwd()
+  def nodejs = tool 'NodeJS_6'
+
+  stage("Setup") {
+    if(env.GIT_CREDS) {
+      git url: "${env.GIT_URL}", branch: "${env.GIT_BRANCH}", credentialsId: "${env.GIT_CREDS}"
+    } else {
+      git url: "${env.GIT_URL}", branch: "${env.GIT_BRANCH}"
+    }
+  }
+  
+  stage("Postman Tests") {
+    withCredentials([
+      file(credentialsId: "${POSTMAN_SECRET_FILE}", variable: "POSTMAN_FILE")
+    ]) {
+      withEnv([
+        "PATH+=${root}/node_modules/newman/bin:${nodejs}/bin",
+        "PCF_SPACE=${env.PHASE_TWO_PCF_SPACE}",
+        "NPM_CONFIG_CACHE=${root}/.npmcache",
+        "HOME=${WORKSPACE}"
+      ]) {
+        sh """
+          mkdir -p ${root}/.npmcache
+          npm install newman@3
+          newman run Postman/Collections/Geocoding.postman_collection.json -e Postman/Environment/functions.postman_environment.json -g $POSTMAN_FILE
+        """
+      }
+    }
+  }
+}
