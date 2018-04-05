@@ -1,5 +1,4 @@
 node {
-  // Run the Integration Tests on the Phase Two Environment
   def root = pwd()
   def nodejs = tool 'NodeJS_6'
 
@@ -24,7 +23,7 @@ node {
         sh """
           mkdir -p ${root}/.npmcache
           npm install newman@3
-          newman run Postman/Collections/Geocoding.postman_collection.json -e Postman/Environment/functions.postman_environment.json -g $POSTMAN_FILE
+          ./node_modules/newman/bin/newman.js run Postman/Collections/Geocoding.postman_collection.json -e Postman/Environment/functions.postman_environment.json -g $POSTMAN_FILE
         """
       }
     }
